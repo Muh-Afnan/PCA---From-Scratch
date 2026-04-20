@@ -1,4 +1,4 @@
-from matrix_library.src.matrix import Matrix
+from matrix_library.matrix import Matrix
 import math
 
 
