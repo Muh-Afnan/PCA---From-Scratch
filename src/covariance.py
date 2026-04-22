@@ -33,20 +33,4 @@ def covariance_matrix(data: Matrix) -> Matrix:
 
     return Matrix(cov_matrix)
 
-if __name__ == "__main__":
-    mat = [
-        [2.5, 2.4, 1.7],
-        [0.5, 0.7, 1.9],
-        [2.2, 2.9, 2.1],
-        [1.9, 2.2, 1.8],
-        [3.1, 3.0, 2.3],
-        [2.3, 2.7, 2.0],
-        [2, 1.6, 1.5],
-        [1, 1.1, 8],
-        [1.5, 1.6, 8],
-        [1.1, 0.9, 9],
-    ]
-    mat = Matrix(mat)
-    cov_matrix = covariance_matrix(mat)
-    print(cov_matrix)
 

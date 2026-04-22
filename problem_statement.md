@@ -1,6 +1,15 @@
-Why This Day Exists
-You just built eigenvectors from scratch. You just built matrix operations from scratch. Day 3 is where those two things collide with a real machine learning algorithm.
-PCA — Principal Component Analysis — is the first genuinely useful ML algorithm you will implement from scratch. It appears everywhere. Dimensionality reduction before training. Visualising high-dimensional data. Noise filtering. Feature compression. Understanding what your data actually looks like before throwing a model at it.
-Most people use sklearn.decomposition.PCA and move on. You are going to build it from the mathematics up, understand exactly what it's doing geometrically, and then compare your implementation against sklearn to verify correctness.
+# Why This Day Exists
 
+I have already implemented eigenvectors from scratch and built core matrix operations manually.  
+Today, I bring those foundations together in a real machine learning algorithm: **PCA (Principal Component Analysis)**.
 
+PCA is one of the most practical algorithms in ML, and I can use it for:
+
+- reducing dimensionality before training models,
+- visualizing high-dimensional datasets,
+- filtering noise,
+- compressing features,
+- understanding data structure before modeling.
+
+Most people call `sklearn.decomposition.PCA` and move on.  
+In this challenge, I will implement PCA directly from the mathematics, understand its geometric meaning, and validate my implementation against scikit-learn for correctness.

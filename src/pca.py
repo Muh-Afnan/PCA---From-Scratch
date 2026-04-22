@@ -1,7 +1,7 @@
-from covariance import covariance_matrix
+from .covariance import covariance_matrix
 from matrix_library.matrix import Matrix
-from scalar import StandardScaler
-from power_iteration import PowerIteration
+from .scalar import StandardScaler
+from .power_iteration import PowerIteration
 
 
 class PCA:

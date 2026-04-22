@@ -38,12 +38,12 @@ class StandardScaler:
             ]
             scaled.append(scaled_col)
 
-        return Matrix(list(zip(*scaled)))
+        return Matrix([list(row) for row in zip(*scaled)])
 
     def fit_transform(self, data: Matrix) -> Matrix:
         self.fit(data)
         return self.transform(data)
-    
+
     def inverse_transform_scaled(self, data: Matrix) -> Matrix:
         cols = list(zip(*data.data))
 
@@ -53,4 +53,4 @@ class StandardScaler:
             original_col = [x * self.stds[i] + self.means[i] for x in col]
             original.append(original_col)
 
-        return Matrix(list(zip(*original)))
+        return Matrix([list(row) for row in zip(*original)])
