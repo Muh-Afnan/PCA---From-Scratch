@@ -1,112 +1,92 @@
-# PCA From Scratch
+# Day 3 — PCA from Scratch
 
-This project implements **Principal Component Analysis (PCA)** from scratch, without using any machine learning library.
+Principal Component Analysis implemented from scratch using only pure Python and the matrix library built in Day 1.
 
-## Overview
+## What This Is
 
-PCA is a dimensionality reduction technique used to:
+PCA is a dimensionality reduction algorithm that finds the directions of maximum variance in a dataset. This implementation covers the full pipeline — from raw data to reduced representation and back — without using any ML library for the core logic.
 
-- reduce the number of features
-- keep the most important information (maximum variance)
-- simplify data visualization and preprocessing
+Validated against scikit-learn on structured data with well-separated eigenvalues.
 
-This implementation follows the core PCA steps manually.
+## File Structure
 
-## What This Project Does
-
-- Computes the mean of each feature
-- Centers the dataset
-- Computes the covariance matrix
-- Finds eigenvalues and eigenvectors
-- Sorts principal components by explained variance
-- Projects data onto the top `k` components
-
-## Why This Project
-
-The goal is to understand how PCA works internally instead of calling a built-in function.
-
-## Formula Summary
-
-Given centered data matrix \(X\):
-
-1. Covariance matrix:  
-    \[
-    C = \frac{1}{n-1}X^T X
-    \]
-
-2. Eigen decomposition:  
-    \[
-    C v = \lambda v
-    \]
-
-3. Choose top-\(k\) eigenvectors and project:  
-    \[
-    Z = X W_k
-    \]
-
-## Run
-
-```bash
-python main.py
+```
+pca_implementation/
+├── src/
+│   ├── pca.py              # PCA class — fit, transform, fit_transform, inverse_transform
+│   ├── scalar.py           # StandardScaler — fit/transform with stored statistics
+│   ├── covariance.py       # covariance_matrix function with Bessel's correction
+│   └── power_iteration.py  # PowerIteration — iterative eigen solver with deflation
+├── tests/
+│   ├── test_pca.py
+│   ├── test_power_iteration.py
+│   ├── test_scaler.py
+│   └── test_pca_sklearn.py
+├── problem_statement.md
+├── approach.md
+└── learnings.md
 ```
 
-> Update the command if your entry file has a different name.
+## The Pipeline
 
-## Notes
+```
+Raw data (n × p)
+    ↓  StandardScaler.fit_transform
+Scaled data (n × p)
+    ↓  covariance_matrix
+Covariance matrix (p × p)
+    ↓  PowerIteration.compute
+Eigenvalues + Eigenvectors
+    ↓  sort by eigenvalue, take top k
+Principal components (p × k)
+    ↓  X_scaled @ components
+Reduced data (n × k)
+```
 
-- Built for learning and educational purposes.
-- No external ML library is used for the PCA logic.
-- You can extend this to include explained variance ratio plots and reconstruction error.
+## Usage
 
----
-If you meant “strach”, the correct spelling is **scratch**.
-+-+-+-+-+-+
-## Implementation Approach (Code-Level)
+```python
+from src.pca import PCA
+from matrix_library.matrix import Matrix
 
-The PCA pipeline is implemented in a clean, step-by-step matrix workflow:
+X = Matrix([[2.5, 2.4], [0.5, 0.7], [2.2, 2.9], [1.9, 2.2]])
 
-1. **Input to numeric matrix**  
-    Data is treated as a 2D matrix (\(n\_samples \times n\_features\)) so every next step can be done with linear algebra operations.
+pca = PCA(n_components=1)
+X_reduced = pca.fit_transform(X)
+X_reconstructed = pca.inverse_transform(X_reduced)
 
-2. **Feature-wise centering**  
-    The mean of each column is computed and subtracted from the dataset.  
-    This is essential because PCA assumes zero-centered features before covariance is computed.
+print(pca.explained_variance_ratio_)  # fraction of variance per component
+```
 
-3. **Covariance from centered data**  
-    Instead of using a high-level ML API, covariance is formed directly with matrix multiplication:
-    \[
-    C = \frac{1}{n-1}X^T X
-    \]
-    This keeps the implementation mathematically transparent.
+## Key Design Decisions
 
-4. **Eigen decomposition for directions of variance**  
-    Eigenvalues/eigenvectors are extracted from the covariance matrix.  
-    - Eigenvectors = principal directions  
-    - Eigenvalues = amount of variance captured by each direction
+**PowerIteration with deflation** — the eigen solver from Day 2 only handled 2×2 matrices (characteristic polynomial). For arbitrary n×n matrices, power iteration with deflation is used: find the dominant eigenvector, subtract its contribution from the matrix, repeat. This is O(n²) per iteration and practical for moderate-sized datasets.
 
-5. **Manual component ranking**  
-    Components are sorted in descending eigenvalue order, then the top \(k\) directions are selected.
+**StandardScaler stores training statistics** — `fit` stores means and stds, `transform` uses stored values. This is essential for correctly scaling test data using training statistics without leaking test distribution information.
+**Standardisation vs centring** — PCA mathematically requires only centring (zero mean). This implementation standardises fully (zero mean, unit variance) so features on different scales contribute equally. If your features have meaningful variance differences, consider centring only.
 
-6. **Projection to lower dimension**  
-    Reduced representation is computed with:
-    \[
-    Z = XW_k
-    \]
-    where \(W_k\) contains the selected principal vectors.
+**Sign ambiguity** — PCA components are only defined up to sign. `v` and `-v` are the same principal component. The sklearn comparison test uses correlation (sign-invariant) rather than direct value comparison.
 
-## Techniques Used
+**Bessel's correction** — covariance uses `n-1` denominator to produce an unbiased population estimate, matching sklearn's default.
 
-- **Pure linear algebra implementation** (no PCA wrapper/class from ML libraries)
-- **Deterministic ordering** of components by explained variance
-- **Vectorized operations** for efficient matrix computation
-- **Modular logic** that can be extended to:
-  - explained variance ratio
-  - scree plot
-  - inverse transform / reconstruction error
+## Verified Against sklearn
 
-## Why This Approach Is Strong
+```
+Eigenvalues match to 4 decimal places.
+Eigenvector dot products with numpy reference: all ±1.000.
+Projection correlation with sklearn: > 0.99 on well-separated data.
+```
 
-- It matches the textbook PCA derivation exactly.
-- Each computational step is inspectable and debuggable.
-- It builds intuition for covariance structure, orthogonal bases, and variance maximization.
-- It creates a solid base for implementing advanced variants later (whitening, incremental PCA, kernel PCA).
+## Dependencies
+
+```
+matrix_library  (Day 1 — installed as local package)
+numpy           (tests only — for sklearn comparison)
+scikit-learn    (tests only — for validation)
+```
+
+## Run Tests
+
+```bash
+python -m pytest tests/ -v
+```

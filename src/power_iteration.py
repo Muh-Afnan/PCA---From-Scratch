@@ -17,7 +17,7 @@ class PowerIteration:
 
     def single_eigenvalue(self, matrix: Matrix, iterations=1000, tol=1e-6,seed=0):
         n = len(matrix.data)
-        start = [1.0 if i == 0 else 0.1 * (i + seed + 1) for i in range(n)]
+        start = [1.0 / (i + seed + 1) for i in range(n)]
         norm = self._norm(start)
         start = [x / norm for x in start]
         v = self._to_matrix(start)
@@ -47,7 +47,7 @@ class PowerIteration:
 
         return eigenvalue, v
 
-    def compute(self, matrix: Matrix, iterations=1000, tol=1e-6):
+    def compute(self, matrix: Matrix, iterations=10000, tol=1e-9):
         if matrix.rows != matrix.cols:
             raise ValueError(f"Expected square matrix, got shape {matrix.shape()}")
 
